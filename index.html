@@ -706,7 +706,7 @@
       note ? `備注：${note}` : '',
     ].filter(Boolean).join('\n');
 
-    const lineUrl = `https://line.me/R/oaMessage/${encodeURIComponent(LINE_ID)}?text=${encodeURIComponent(text)}`;
+    const lineUrl = `https://line.me/R/oaMessage/${LINE_ID}?text=${encodeURIComponent(text)}`;
     document.getElementById('lineBtn').href = lineUrl;
 
     const msg = document.getElementById('successMsg');
