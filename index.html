@@ -603,17 +603,34 @@
         </form>
 
         <!-- Success message (hidden) -->
-        <div id="successMsg" class="hidden mt-6 bg-sage/20 border border-sage/30 rounded-2xl px-5 py-5 text-center space-y-4">
-          <p class="text-sage-light text-sm">✓ 預約資訊已整理完成！</p>
-          <p class="text-sand-light/70 text-xs leading-relaxed">請點下方按鈕，開啟 Line 並將已填好的預約內容直接傳送給我們，我們將立即為您確認時段。</p>
-          <a id="lineBtn" href="#" target="_blank"
+        <div id="successMsg" class="hidden mt-6 space-y-4">
+          <div class="bg-sage/20 border border-sage/30 rounded-2xl px-5 py-4">
+            <p class="text-sage-light text-sm font-medium mb-1">✓ 預約資訊已整理完成！</p>
+            <p class="text-sand-light/70 text-xs leading-relaxed">請複製下方預約內容，再點按鈕開啟 Line 貼上傳送給我們。</p>
+          </div>
+
+          <!-- Copyable text -->
+          <div class="relative">
+            <textarea id="reservationText" readonly rows="6"
+              class="w-full bg-white/8 border border-sand/25 rounded-xl px-4 py-3 text-cream text-xs leading-relaxed resize-none focus:outline-none cursor-text font-mono"></textarea>
+            <button onclick="copyText()"
+              class="absolute top-2.5 right-2.5 bg-sand/20 hover:bg-sand/35 text-sand-light text-xs px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/>
+              </svg>
+              <span id="copyLabel">複製</span>
+            </button>
+          </div>
+
+          <!-- Open Line button -->
+          <a href="https://line.me/ti/p/@387lcyli" target="_blank"
              class="inline-flex items-center justify-center gap-2 bg-[#06C755] hover:bg-[#05b34c] text-white font-medium text-sm px-6 py-3 rounded-xl transition-colors w-full">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
               <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.105.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
             </svg>
-            前往 Line 送出預約訊息
+            開啟 Line 官方帳號
           </a>
-          <p class="text-sand-light/40 text-xs">點擊後 Line 將自動帶入您的預約內容，直接按送出即可</p>
+          <p class="text-sand-light/40 text-xs text-center">開啟後將複製的內容貼入對話框送出即可</p>
         </div>
       </div>
 
@@ -675,8 +692,7 @@
   }, { threshold: 0.12 });
   reveals.forEach(el => observer.observe(el));
 
-  // Form submit → build Line pre-filled message
-  const LINE_ID = '@387lcyli';
+  // Form submit → show copyable reservation text
   const SERVICE_LABELS = {
     classic: '經典越式洗護（含頭部水療、肩頸按摩）',
     aroma:   '芳療精油深層舒壓（全身經絡放鬆）',
@@ -706,12 +722,20 @@
       note ? `備注：${note}` : '',
     ].filter(Boolean).join('\n');
 
-    const lineUrl = `https://line.me/R/oaMessage/${LINE_ID}?text=${encodeURIComponent(text)}`;
-    document.getElementById('lineBtn').href = lineUrl;
-
-    const msg = document.getElementById('successMsg');
-    msg.classList.remove('hidden');
+    document.getElementById('reservationText').value = text;
+    document.getElementById('successMsg').classList.remove('hidden');
     e.target.reset();
+    document.getElementById('successMsg').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function copyText() {
+    const ta = document.getElementById('reservationText');
+    ta.select();
+    navigator.clipboard.writeText(ta.value).then(() => {
+      const label = document.getElementById('copyLabel');
+      label.textContent = '已複製！';
+      setTimeout(() => label.textContent = '複製', 2000);
+    });
   }
 </script>
 
